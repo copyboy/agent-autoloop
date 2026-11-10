@@ -135,8 +135,9 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding-top:16px;font:10
 <h2><span class="n">03</span>5 分钟跑起来</h2>
 <p>用我们 fork 的隔离开发实例，不碰生产数据：</p>
 <pre><button class="copy">复制</button><code>cd ~/Workspace/agent-autoloop
-npm install
+pnpm install                  # 本 fork 用 pnpm；pnpm-lock 从上游 package-lock 生成
 ./scripts/local-dev.sh        # 首次 init，然后前台启动；默认端口 3351</code></pre>
+<p class="meta" style="border:0;padding:0;margin:-8px 0 16px">pnpm 10.x。上游的 <code>package-lock.json</code> 保留不动；<code>pnpm import</code> 负责生成 <code>pnpm-lock.yaml</code>。</p>
 <p>另开一个终端：</p>
 <pre><button class="copy">复制</button><code>export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"
 export AGENT_AUTOLOOP_HOME="$HOME/.agent-autoloop-dev"
@@ -319,7 +320,7 @@ agent-autoloop resolve 3 "已线下处理"   # 这张卡不用决定了</code></
   <tr><td class="k">远程</td><td><code>origin</code> = copyboy/agent-autoloop（fork）<br><code>upstream</code> = KKKKhazix/agent-autoloop</td></tr>
   <tr><td class="k">开发实例</td><td><code>./scripts/local-dev.sh</code> → <code>~/.agent-autoloop-dev</code>，端口 3351</td></tr>
   <tr><td class="k">同步上游</td><td><code>./scripts/upstream-sync.sh</code>（干跑）<br><code>./scripts/upstream-sync.sh --apply</code>（rebase + 测试）</td></tr>
-  <tr><td class="k">测试基线</td><td><code>npm run typecheck</code> + <code>npm run test:quick</code>（707 pass / 19 skip）</td></tr>
+  <tr><td class="k">测试基线</td><td><code>pnpm typecheck</code> + <code>pnpm test:quick</code>（707 pass / 19 skip）</td></tr>
 </table>
 <div class="note"><b>本地改动的三条铁律：</b>① 优先只动 <code>plugins/</code>，不碰 <code>kernel/</code> / <code>protocol/</code> / <code>worker/</code>；② 不加界面；③ 零运行时依赖、测试先行。这样每次上游发版都能 rebase 回来。</div>
 </section>

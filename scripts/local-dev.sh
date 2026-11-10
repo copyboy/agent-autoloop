@@ -5,6 +5,11 @@ set -eu
 cd "$(dirname "$0")/.."
 export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"
 export AGENT_AUTOLOOP_HOME="${AGENT_AUTOLOOP_HOME:-$HOME/.agent-autoloop-dev}"
+
+if [ ! -d node_modules ]; then
+  echo "缺少依赖，先运行：pnpm install --frozen-lockfile" >&2
+  exit 1
+fi
 PORT="${AGENT_AUTOLOOP_PORT:-3351}"
 
 if [ ! -f "$AGENT_AUTOLOOP_HOME/config.json" ]; then

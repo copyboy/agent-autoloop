@@ -33,8 +33,10 @@ echo "rebase 到 $LATEST …"
 git rebase "$LATEST"
 
 export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"
-npm install --no-audit --no-fund
-npm run typecheck
-npm run test:quick
+pnpm import
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm test:quick
+echo "pnpm-lock.yaml 有变化就一起提交：$(git status --short pnpm-lock.yaml || true)"
 
 echo "完成：gerrad/main 已 rebase 到 $LATEST。"
