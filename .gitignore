@@ -2,3 +2,7 @@ node_modules/
 .DS_Store
 *.log
 .claude/
+
+# 租户切换生成的 profile wrapper（本机专用）
+scripts/lark-*
+!scripts/lark-tenant.sh
