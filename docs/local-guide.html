@@ -147,6 +147,10 @@ export AGENT_AUTOLOOP_HOME="$HOME/.agent-autoloop-dev"
 agent-autoloop status          # 谁在线、在跑什么、今天几轮
 agent-autoloop try             # 用你的 Agent 走一遍「提问 → 退出 → 拍板 → 接着干」</code></pre>
 <div class="note"><b>为什么用隔离 home：</b>生产实例是 <code>~/.agent-autoloop</code>（端口 3350）。dev 用 <code>~/.agent-autoloop-dev</code>（端口 3351），两边数据、密钥、规则完全分开。</div>
+<div class="note warn"><b>打开端口看到 <code>{"error":"要本人自己的密钥"}</code>？</b>
+这不是没启动，是 <b>autoloop 没有网页界面</b>。3350/3351 是 HTTP API，只认密钥；看状态用 <code>agent-autoloop status</code>，看一轮的来龙去脉用 <code>why</code>，要你拍板时会冒卡片（桌面/飞书/CLI），没有 dashboard。</div>
+<div class="note"><b>两个实例别混：</b>3350 生产实例的规则只认 workbench 事件，<code>try</code> 在它上面会“发出去没人接”。所有命令都带上你想用的那个 HOME：
+<pre style="margin:8px 0 0"><code>AGENT_AUTOLOOP_HOME="$HOME/.agent-autoloop-dev" agent-autoloop try</code></pre></div>
 <p>看到 <code>【等你决定】#1 试跑：选一个颜色</code>，就说明整条链通了：Agent 干了一轮、问了问题、进程已退出。回答它：</p>
 <pre><button class="copy">复制</button><code>agent-autoloop answer 1 2     # 选“绿色”
 agent-autoloop why 1          # 看这一轮的完整时间线</code></pre>
