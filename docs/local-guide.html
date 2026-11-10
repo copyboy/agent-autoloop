@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Autoloop · 使用手册</title>
+<style>
+:root{
+  --bg:#0c0b0a; --bg1:#121110; --bg2:#171512;
+  --line:rgba(235,229,217,.08); --line2:rgba(235,229,217,.16);
+  --ink:#ebe6da; --ink2:#b6afa1; --muted:#867e6f; --faint:#5d564a;
+  --amber:#f0b429; --amber-soft:rgba(240,180,41,.10); --amber-line:rgba(240,180,41,.34);
+  --green:#61c99c; --red:#ef6f5e;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--amber);text-decoration:none} a:hover{text-decoration:underline}
+code{font:12px/1.5 var(--mono);background:var(--bg2);border:1px solid var(--line);border-radius:3px;padding:1px 5px;color:var(--ink2)}
+pre{margin:10px 0 18px;background:#0a0908;border:1px solid var(--line);border-radius:5px;padding:14px 16px;overflow:auto;position:relative}
+pre code{background:none;border:0;padding:0;font-size:12px;line-height:1.75;color:var(--ink2);white-space:pre}
+.wrap{display:grid;grid-template-columns:250px minmax(0,760px);gap:56px;max-width:1120px;margin:0 auto;padding:0 28px 120px}
+header.top{border-bottom:1px solid var(--line);margin-bottom:40px}
+.top-in{max-width:1120px;margin:0 auto;padding:22px 28px;display:flex;align-items:center;gap:14px}
+.logo{width:26px;height:26px;border-radius:5px;background:var(--amber);color:#171208;display:grid;place-items:center;font:700 13px var(--mono)}
+.brand b{font-size:14px;display:block;line-height:1.2}
+.brand span{font:9px var(--mono);letter-spacing:.16em;color:var(--faint)}
+.tagline{margin-left:auto;font:10px var(--mono);color:var(--faint)}
+nav{position:sticky;top:24px;align-self:start;font-size:12px;padding-top:6px}
+nav .t{font:9px var(--mono);letter-spacing:.16em;color:var(--faint);margin-bottom:10px}
+nav a{display:block;color:var(--muted);padding:4px 0 4px 10px;border-left:2px solid transparent;line-height:1.4}
+nav a:hover{color:var(--ink2);text-decoration:none}
+nav a.on{color:var(--amber);border-left-color:var(--amber)}
+main{min-width:0}
+h1{font-size:30px;line-height:1.3;font-weight:650;margin:0 0 10px;letter-spacing:-.01em;text-wrap:balance;max-width:680px}
+.lede{color:var(--ink2);font-size:15px;margin:0 0 12px}
+.meta{font:10px var(--mono);color:var(--faint);border-top:1px solid var(--line);padding-top:10px;margin-top:20px}
+h2{font-size:20px;font-weight:600;margin:56px 0 6px;scroll-margin-top:20px;display:flex;align-items:baseline;gap:10px}
+h2 .n{font:11px var(--mono);color:var(--amber);letter-spacing:.08em}
+h2::after{content:"";flex:1;height:1px;background:var(--line);align-self:center}
+h3{font-size:14px;font-weight:600;margin:26px 0 6px;color:var(--ink)}
+p{margin:0 0 12px;color:var(--ink2)}
+ul,ol{margin:0 0 14px;padding-left:20px;color:var(--ink2)}
+li{margin:4px 0}
+strong{color:var(--ink);font-weight:600}
+.note{border-left:2px solid var(--amber);background:var(--amber-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:14px 0 18px;font-size:13px;color:var(--ink2)}
+.note b{color:var(--amber)}
+.warn{border-left-color:var(--red);background:rgba(239,111,94,.07)}
+.warn b{color:var(--red)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 20px}
+.card{border:1px solid var(--line);border-radius:5px;padding:12px 14px;background:var(--bg1)}
+.card b{display:block;font-size:12.5px;margin-bottom:3px}
+.card span{font-size:12px;color:var(--muted)}
+.card code{font-size:11px}
+table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:12.5px}
+th{text-align:left;font:9px var(--mono);letter-spacing:.1em;color:var(--faint);font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line2)}
+td{padding:8px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+td.k{font-family:var(--mono);font-size:11px;color:var(--ink);white-space:nowrap}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding-left:34px;margin:0 0 12px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;border:1px solid var(--amber-line);color:var(--amber);font:10px/22px var(--mono);text-align:center}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 22px}
+.flow div{border:1px solid var(--line);border-radius:5px;padding:10px 12px;background:var(--bg1)}
+.flow b{display:block;font-size:12px;margin-bottom:2px}
+.flow span{font:9.5px var(--mono);color:var(--faint)}
+.flow .arrow{display:none}
+.copy{position:absolute;right:8px;top:8px;font:9px var(--mono);color:var(--faint);border:1px solid var(--line);background:var(--bg);border-radius:3px;padding:3px 6px;cursor:pointer;opacity:0;transition:.15s}
+pre:hover .copy{opacity:1}
+.copy:hover{color:var(--amber);border-color:var(--amber-line)}
+kbd{font:10px var(--mono);border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;padding:1px 5px;color:var(--ink2);background:var(--bg1)}
+footer{border-top:1px solid var(--line);margin-top:70px;padding-top:16px;font:10px var(--mono);color:var(--faint);display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:20px}nav{position:static;display:none}.grid,.flow{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="logo">A</div>
+    <div class="brand"><b>Agent Autoloop</b><span>LOCAL FORK · 使用手册</span></div>
+    <div class="tagline">v1.7.1 · gerrad/main</div>
+  </div>
+</header>
+
+<div class="wrap">
+<nav id="toc">
+  <div class="t">目录</div>
+  <a href="#what">它是什么</a>
+  <a href="#model">心智模型</a>
+  <a href="#start">5 分钟跑起来</a>
+  <a href="#words">六个词</a>
+  <a href="#daily">三种日常</a>
+  <a href="#rules">规则怎么写</a>
+  <a href="#receipt">回执怎么写</a>
+  <a href="#cards">卡片怎么答</a>
+  <a href="#plugins">插件四方向</a>
+  <a href="#fail">失败与重试</a>
+  <a href="#cli">CLI 速查</a>
+  <a href="#fork">我们的 fork</a>
+  <a href="#learn">学习路径</a>
+  <a href="#pit">常见坑</a>
+</nav>
+
+<main>
+<h1>Agent Autoloop：让命令行 Agent 自己接活，只在拿不准时找你</h1>
+<p class="lede">这不是又一个 Agent 客户端。它是一台很小的自动中台：把「发生了一件事」变成「派给某个 Agent 干一轮」，干完收回执；需要你拍板时，才发一张卡片。</p>
+<div class="meta">读法：先看 ①–③，能跑起来；④–⑥ 是每天会用的；⑦ 以后是扩展和改它。</div>
+
+<section id="what">
+<h2><span class="n">01</span>它是什么</h2>
+<p>一句话：<strong>事件进来 → 规则决定谁干、在哪干 → Agent 跑一轮就退出 → 结果写成回执；要问你时，发一张卡片。</strong></p>
+<div class="grid">
+  <div class="card"><b>它解决</b><span>人不在电脑前，活就断了；Agent 要人守着终端。</span></div>
+  <div class="card"><b>它不解决</b><span>不替你写业务、不做界面、不管模型质量。</span></div>
+  <div class="card"><b>它的成本</b><span>一轮一轮花 token；规则写错会空跑。</span></div>
+  <div class="card"><b>它的边界</b><span>只本机，不开公网端口；Agent 就是你已登录的 CLI。</span></div>
+</div>
+<div class="note"><b>先记住：</b>它不是「定时任务 + 聊天」，而是「事件 + 规则 + 回执 + 卡片」四件套。少了回执，它就是一个 cron。</div>
+</section>
+
+<section id="model">
+<h2><span class="n">02</span>心智模型</h2>
+<div class="flow">
+  <div><b>① 事件</b><span>时间到了 / Webhook / 你点了卡片</span></div>
+  <div><b>② 规则</b><span>交给谁 · 在哪个目录 · 什么 prompt</span></div>
+  <div><b>③ 一轮</b><span>Agent 跑一次，进程退出</span></div>
+  <div><b>④ 回执 / 卡片</b><span>结论落库；要你决定才发卡</span></div>
+</div>
+<p>六个词的关系是：<strong>事件</strong>归进<strong>事项</strong>，<strong>规则</strong>决定事项交给谁，跑成<strong>一轮</strong>，一轮的产物是<strong>回执</strong>；回执里可以请求你拍板，那就是<strong>卡片</strong>。</p>
+<p>最重要的一条设计：<strong>一轮不等人</strong>。要问你时，这一轮直接结束，进程退出，不占内存、不烧 token；你回答后，它接着原来的会话继续。你三天不回，就三天没有 Agent 在跑。</p>
+</section>
+
+<section id="start">
+<h2><span class="n">03</span>5 分钟跑起来</h2>
+<p>用我们 fork 的隔离开发实例，不碰生产数据：</p>
+<pre><button class="copy">复制</button><code>cd ~/Workspace/agent-autoloop
+npm install
+./scripts/local-dev.sh        # 首次 init，然后前台启动；默认端口 3351</code></pre>
+<p>另开一个终端：</p>
+<pre><button class="copy">复制</button><code>export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"
+export AGENT_AUTOLOOP_HOME="$HOME/.agent-autoloop-dev"
+
+agent-autoloop status          # 谁在线、在跑什么、今天几轮
+agent-autoloop try             # 用你的 Agent 走一遍「提问 → 退出 → 拍板 → 接着干」</code></pre>
+<div class="note"><b>为什么用隔离 home：</b>生产实例是 <code>~/.agent-autoloop</code>（端口 3350）。dev 用 <code>~/.agent-autoloop-dev</code>（端口 3351），两边数据、密钥、规则完全分开。</div>
+<p>看到 <code>【等你决定】#1 试跑：选一个颜色</code>，就说明整条链通了：Agent 干了一轮、问了问题、进程已退出。回答它：</p>
+<pre><button class="copy">复制</button><code>agent-autoloop answer 1 2     # 选“绿色”
+agent-autoloop why 1          # 看这一轮的完整时间线</code></pre>
+</section>
+
+<section id="words">
+<h2><span class="n">04</span>六个词</h2>
+<table>
+  <tr><th>词</th><th>是什么</th><th>你要关心的</th></tr>
+  <tr><td class="k">事件</td><td>来源、编号、类型、对象、一句话、详情、链接。定时、Webhook、你的回答，都是事件。</td><td>同一来源同一 id 只记一次，来源可以放心重发。</td></tr>
+  <tr><td class="k">规则</td><td><code>rules.json</code> 里的一条：什么事件、交给哪个 Agent、在哪个目录、什么 prompt。</td><td>规则才是指令；事件里的文字不能改路由。</td></tr>
+  <tr><td class="k">事项</td><td>同一条规则下同一个对象的事。卡片、复查、会话都挂在事项上。</td><td>写了 <code>parallel</code> 才按对象拆；不写整条规则是一个事项。</td></tr>
+  <tr><td class="k">一轮</td><td>一次执行：领一批事件，交一份回执，结束。</td><td>一轮会结束，事项会继续。</td></tr>
+  <tr><td class="k">回执</td><td>Agent 的最后一条消息。想让中台做的事都写在这里。</td><td>结论 + 证据 + 落了哪个文件。</td></tr>
+  <tr><td class="k">卡片</td><td>给你看的东西。带选项 = 提问；不带 = 通知。</td><td>回答后接着原会话干。</td></tr>
+</table>
+</section>
+
+<section id="daily">
+<h2><span class="n">05</span>三种日常</h2>
+<h3>A · 定时任务（最简单）</h3>
+<pre><button class="copy">复制</button><code>{
+  "name": "早报",
+  "when": { "cron": "0 9 * * *" },
+  "to": "codex",
+  "cwd": "~/notes",
+  "prompt": "整理昨天的笔记和提交，写今天的早报。"
+}</code></pre>
+<p>保存后几秒内生效，<code>agent-autoloop check</code> 检查，<code>rules explain</code> 看下次什么时候跑。</p>
+
+<h3>B · 外部事件（Webhook / 轮询）</h3>
+<pre><button class="copy">复制</button><code>{
+  "name": "处理 issue",
+  "when": { "source": "github", "types": ["issues.opened"] },
+  "to": "codex",
+  "cwd": "~/code/app",
+  "skill": "handle-issue",
+  "parallel": 3
+}</code></pre>
+<p>来源要先在 <code>sources</code> 登记；Webhook 验签密钥放 <code>secrets.env</code>，不进规则文件。<br>没有公网也能轮询：定时跑一段脚本，脚本在回执的 <code>events</code> 里交回新事件，id 稳定即可，中台负责去重。</p>
+
+<h3>C · 要你拍板</h3>
+<p>Agent 在最后一条回复里附一个 <code>agent-autoloop</code> 代码块：</p>
+<pre><button class="copy">复制</button><code>订单核对完了，库存充足。
+
+```agent-autoloop
+{
+  "ask": [{
+    "title": "怎么发货？",
+    "text": "两种方式今天都能发出。",
+    "options": ["快递", "自提"],
+    "key": "shipping"
+  }]
+}
+```</code></pre>
+<p>中台发卡片、这轮结束。你答完，它用同一会话继续，<strong>不用重做前面的活</strong>。除了 <code>ask</code>，还能 <code>notice</code>（通知）、<code>resolve</code>（关掉旧卡）、<code>later</code>（约时间复查）、<code>events</code>（触发新事件）。</p>
+</section>
+
+<section id="rules">
+<h2><span class="n">06</span>规则怎么写</h2>
+<pre><button class="copy">复制</button><code>{
+  "timezone": "Asia/Shanghai",
+  "askFirst": ["删数据", "停服", "花钱", "对外发消息"],
+  "agents": {
+    "codex": { "use": "codex", "worker": "mac-mini" },
+    "opencode": {
+      "use": "command",
+      "command": ["opencode", "run", "--format", "json", "{prompt}"]
+    }
+  },
+  "rules": [{
+    "name": "巡检",
+    "when": { "cron": "0 8 * * *" },
+    "to": "opencode",
+    "cwd": "~/code/app",
+    "prompt": "只读检查，结论放最后一条消息。",
+    "parallel": 1,
+    "resume": true,
+    "tell": "needed"
+  }]
+}</code></pre>
+<table>
+  <tr><th>字段</th><th>作用</th></tr>
+  <tr><td class="k">to</td><td>用哪个 Agent（<code>agents</code> 里的名字）。</td></tr>
+  <tr><td class="k">cwd</td><td>Agent 在哪个目录干。<strong>静态，事件改不了</strong>——这是安全边界。</td></tr>
+  <tr><td class="k">skill / prompt</td><td>用哪份技能、给什么提示词。</td></tr>
+  <tr><td class="k">parallel</td><td>按对象分事项；每个对象一次一轮，最多几轮。</td></tr>
+  <tr><td class="k">resume</td><td>同一事项的新事件接着上一轮会话，默认开新会话。</td></tr>
+  <tr><td class="k">tell</td><td>always / needed / never：什么时候给你发消息。</td></tr>
+  <tr><td class="k">channels</td><td>这张卡片只发到哪些通道。</td></tr>
+</table>
+<div class="note warn"><b>安全边界：</b>事件里带 <code>cwd</code>、<code>agent</code>、<code>access</code> 会被直接拒收。Issue 标题正文只作为资料放进文件，绝不拼进提示词。</div>
+</section>
+
+<section id="receipt">
+<h2><span class="n">07</span>回执怎么写</h2>
+<p>不需要 SDK。约定只有一条：<strong>把结论写在最后一条消息里</strong>。要中台做事，就在末尾附代码块。写坏了，中台只让它重写最后一段，<strong>不重跑已经干完的业务</strong>。</p>
+<pre><button class="copy">复制</button><code>结论：3 个查询掉出前 10，原因是 11-07 的合并重写。
+
+证据：
+- reports/gsc-1109.md
+- 部署记录 11-07 14:20
+
+```agent-autoloop
+{
+  "notice": [{"title": "归因完成", "text": "报告在 reports/gsc-1109.md"}],
+  "later": [{"after": "2h", "reason": "复查排名是否恢复"}]
+}
+```</code></pre>
+<p>回执里的事件会继承 hops（跳数），超过 8 层只记录、不再派发，防止 Agent 之间无限对话。</p>
+</section>
+
+<section id="cards">
+<h2><span class="n">08</span>卡片怎么答</h2>
+<pre><button class="copy">复制</button><code>agent-autoloop status              # 看等你什么
+agent-autoloop answer 3 1          # 第 3 张卡，选第 1 项
+agent-autoloop answer 3 --text "都不对，走第三种"
+agent-autoloop resolve 3 "已线下处理"   # 这张卡不用决定了</code></pre>
+<p>也可以走飞书/桌面通道点按钮。回答会变成一条新事件，叫醒提问的事项。</p>
+<div class="note"><b>别忽略：</b>卡片是异步的。你不答，它不占进程、不花钱，但事情就停在那儿——<code>status</code> 里会一直写着「等你」。</div>
+</section>
+
+<section id="plugins">
+<h2><span class="n">09</span>插件四方向</h2>
+<table>
+  <tr><th>方向</th><th>内置</th><th>你要加的时候</th></tr>
+  <tr><td class="k">事件</td><td>GitHub / GitLab / HTTP / 定时</td><td>新系统怎么变成事件</td></tr>
+  <tr><td class="k">Agent</td><td>Claude Code / Codex / ACP / DSH / command</td><td>新 CLI 怎么接（能收 prompt、打印最后一条回复就行）</td></tr>
+  <tr><td class="k">通道</td><td>桌面 / 飞书 / Webhook</td><td>卡片发到哪、怎么回答</td></tr>
+  <tr><td class="k">交付</td><td>GitHub PR 流水线</td><td>把 CI/CD 也做成插件</td></tr>
+</table>
+<p>插件都是 <code>plugins/&lt;名字&gt;/{agent,channel,source}.ts</code>，由配置文件启用；内核不认识任何产品名。</p>
+</section>
+
+<section id="fail">
+<h2><span class="n">10</span>失败与重试</h2>
+<table>
+  <tr><th>状态</th><th>意思</th><th>你做什么</th></tr>
+  <tr><td class="k">queued</td><td>排队；attempts &gt; 0 表示失败等重试</td><td>等，或看 <code>why</code></td></tr>
+  <tr><td class="k">claimed</td><td>接单程序领走了，在跑</td><td>等</td></tr>
+  <tr><td class="k">unknown</td><td>5 分钟没报，不确定还在不在跑</td><td>看卡片 / 日志</td></tr>
+  <tr><td class="k">done / nothing</td><td>做成了 / 看过了没事可做</td><td>无</td></tr>
+  <tr><td class="k">cancelled</td><td>连续 10 次失败、规则删除、或你手动停</td><td>看 <code>summary</code> 里的原因</td></tr>
+</table>
+<p>失败重试会合并同一事项后来的事件；回答和复查回到提问时的会话。接不上才开新会话——<strong>不会把做到一半的活重做一遍</strong>。</p>
+</section>
+
+<section id="cli">
+<h2><span class="n">11</span>CLI 速查</h2>
+<table>
+  <tr><th>命令</th><th>用途</th></tr>
+  <tr><td class="k">up</td><td>启动 hub + worker（前台）</td></tr>
+  <tr><td class="k">status [--json]</td><td>谁在线、等你什么、在跑什么、今天几轮</td></tr>
+  <tr><td class="k">why &lt;轮次&gt;</td><td>这一轮的完整时间线</td></tr>
+  <tr><td class="k">check / rules explain</td><td>校验规则、看生效结果与下次定时</td></tr>
+  <tr><td class="k">run &lt;规则&gt;</td><td>立刻跑一轮</td></tr>
+  <tr><td class="k">pause / resume</td><td>暂停/恢复一条规则（不补跑）</td></tr>
+  <tr><td class="k">emit &lt;类型&gt; --dry-run</td><td>预演一条事件会派给谁</td></tr>
+  <tr><td class="k">answer / resolve</td><td>回答卡片 / 结案</td></tr>
+  <tr><td class="k">key new &lt;种类&gt; &lt;名字&gt;</td><td>新建来源/接单/通道/本人密钥</td></tr>
+  <tr><td class="k">service install</td><td>登录服务（常驻）</td></tr>
+  <tr><td class="k">backup / restore</td><td>备份与恢复</td></tr>
+</table>
+</section>
+
+<section id="fork">
+<h2><span class="n">12</span>我们的 fork</h2>
+<table>
+  <tr><th>项</th><th>值</th></tr>
+  <tr><td class="k">本地路径</td><td><code>~/Workspace/agent-autoloop</code></td></tr>
+  <tr><td class="k">基线</td><td><code>v1.7.1</code>（与生产一致）</td></tr>
+  <tr><td class="k">分支</td><td><code>main</code> 镜像上游；<code>gerrad/main</code> 本地主线</td></tr>
+  <tr><td class="k">远程</td><td><code>origin</code> = copyboy/agent-autoloop（fork）<br><code>upstream</code> = KKKKhazix/agent-autoloop</td></tr>
+  <tr><td class="k">开发实例</td><td><code>./scripts/local-dev.sh</code> → <code>~/.agent-autoloop-dev</code>，端口 3351</td></tr>
+  <tr><td class="k">同步上游</td><td><code>./scripts/upstream-sync.sh</code>（干跑）<br><code>./scripts/upstream-sync.sh --apply</code>（rebase + 测试）</td></tr>
+  <tr><td class="k">测试基线</td><td><code>npm run typecheck</code> + <code>npm run test:quick</code>（707 pass / 19 skip）</td></tr>
+</table>
+<div class="note"><b>本地改动的三条铁律：</b>① 优先只动 <code>plugins/</code>，不碰 <code>kernel/</code> / <code>protocol/</code> / <code>worker/</code>；② 不加界面；③ 零运行时依赖、测试先行。这样每次上游发版都能 rebase 回来。</div>
+</section>
+
+<section id="learn">
+<h2><span class="n">13</span>学习路径</h2>
+<ol class="steps">
+  <li><strong>先跑 <code>try</code></strong>：亲手走一遍「提问 → 退出 → 回答 → 接着干」，比读十页文档有用。</li>
+  <li><strong>读 <code>docs/protocol.md</code> 的前两节</strong>：事件、规则、回执的字段就这些。</li>
+  <li><strong>改一条自己的规则</strong>：定时跑一个只读脚本，让它给你发一张通知卡。</li>
+  <li><strong>接一个外部来源</strong>：用 <code>emit</code> 手动发事件，确认路由对了，再接 Webhook。</li>
+  <li><strong>写第一个插件</strong>：从 <code>examples/plugins/hello-*</code> 抄，先跑通再改。</li>
+  <li><strong>看上游怎么改内核</strong>：<code>git log --oneline upstream/main -- kernel/</code>，读提交信息里的“为什么”。</li>
+</ol>
+</section>
+
+<section id="pit">
+<h2><span class="n">14</span>常见坑</h2>
+<ul>
+  <li><strong>cwd 是静态的。</strong>事件改不了目录；每个项目一条规则，或用 wrapper 自己切。</li>
+  <li><strong>opencode 必须带 <code>--dir</code></strong>。不带会把目标目录当 external_directory 直接拒掉（我们踩过）。</li>
+  <li><strong>事件正文不进 prompt。</strong>summary/detail 只是资料；要 Agent 读内容，让它读文件。</li>
+  <li><strong>桌面通道只在本机弹。</strong>人不在电脑前就看不到；远程要接飞书/钉钉/Slack。</li>
+  <li><strong>卡片不回答，活就停着。</strong>它不占进程，但也不会自己往前走。</li>
+  <li><strong>规则写错不会炸。</strong>旧规则继续跑，并推一张卡片告诉你错在哪——改完记得 <code>check</code>。</li>
+  <li><strong>别把生产数据放仓库。</strong><code>hub.db</code> / <code>config.json</code> / <code>secrets.env</code> 都在 <code>~/.agent-autoloop</code>。</li>
+</ul>
+</section>
+
+<footer>
+  <span>Agent Autoloop · 本地 fork 手册</span>
+  <span>v1.7.1 · 2026-11-10</span>
+  <span>源码：~/Workspace/agent-autoloop</span>
+</footer>
+</main>
+</div>
+
+<script>
+document.querySelectorAll('pre').forEach(pre => {
+  const btn = pre.querySelector('.copy');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    const text = pre.querySelector('code').innerText;
+    try { await navigator.clipboard.writeText(text); btn.textContent = '已复制'; }
+    catch { btn.textContent = '复制失败'; }
+    setTimeout(() => btn.textContent = '复制', 1200);
+  });
+});
+const links = [...document.querySelectorAll('#toc a')];
+const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.toggle('on', l.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, {rootMargin: '-20% 0px -70% 0px'});
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
