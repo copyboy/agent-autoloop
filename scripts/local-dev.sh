@@ -3,7 +3,18 @@
 # 不碰生产 ~/.agent-autoloop。首次运行自动 init（--no-service，零 token 的 cat agent）。
 set -eu
 cd "$(dirname "$0")/.."
-export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"
+
+# 固定 Node 24：.nvmrc 是给 nvm 用的；脚本自己也兜底，避免 shell 里是 22 时装错版本。
+NODE24="$HOME/.nvm/versions/node/v24.18.0/bin"
+if [ ! -x "$NODE24/node" ]; then
+  echo "找不到 Node 24.18.0（$NODE24）。先 nvm install 24.18.0，或改这个脚本里的路径。" >&2
+  exit 1
+fi
+export PATH="$NODE24:$PATH"
+case "$(node -v)" in
+  v24.*) ;;
+  *) echo "Node 版本不对：$(node -v)，需要 24.x" >&2; exit 1 ;;
+esac
 export AGENT_AUTOLOOP_HOME="${AGENT_AUTOLOOP_HOME:-$HOME/.agent-autoloop-dev}"
 
 if [ ! -d node_modules ]; then

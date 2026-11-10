@@ -135,8 +135,10 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding-top:16px;font:10
 <h2><span class="n">03</span>5 分钟跑起来</h2>
 <p>用我们 fork 的隔离开发实例，不碰生产数据：</p>
 <pre><button class="copy">复制</button><code>cd ~/Workspace/agent-autoloop
+nvm use                       # .nvmrc = 24.18.0（必须 24.x）
 pnpm install                  # 本 fork 用 pnpm；pnpm-lock 从上游 package-lock 生成
-./scripts/local-dev.sh        # 首次 init，然后前台启动；默认端口 3351</code></pre>
+pnpm run dev                  # = scripts/local-dev.sh；首次 init，然后前台启动</code></pre>
+<p class="meta" style="border:0;padding:0;margin:-8px 0 16px">脚本自己也兜底 Node 24：就算当前 shell 是 22，hub 仍然用 24.18.0 跑；<code>pnpm</code> 本身的 engine WARN 在 <code>nvm use</code> 后消失。</p>
 <p class="meta" style="border:0;padding:0;margin:-8px 0 16px">pnpm 10.x。上游的 <code>package-lock.json</code> 保留不动；<code>pnpm import</code> 负责生成 <code>pnpm-lock.yaml</code>。</p>
 <p>另开一个终端：</p>
 <pre><button class="copy">复制</button><code>export PATH="$HOME/.nvm/versions/node/v24.18.0/bin:$PATH"

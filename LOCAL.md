@@ -32,10 +32,13 @@ git push -u origin gerrad/main
 Node 24（本机 `~/.nvm/versions/node/v24.18.0`）：
 
 ```bash
+nvm use                          # .nvmrc = 24.18.0
 pnpm install --frozen-lockfile   # 本 fork 用 pnpm（见下）
 pnpm typecheck
 pnpm test:quick                  # 707 pass / 19 skip 是当前基线
 ```
+
+开发实例：`pnpm run dev`（等价 `./scripts/local-dev.sh`；脚本会强制用 Node 24.18.0，即使当前 shell 是 22）。
 
 ### 包管理器：pnpm，但保留上游 lock
 
