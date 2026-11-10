@@ -59,6 +59,56 @@ AGENT_AUTOLOOP_HOME=/tmp/al-dev ./scripts/local-dev.sh
 
 dev 实例用 `cat {prompt}` 当 Agent，零 token，只验证链路。
 
+
+## 飞书通道（已打通）
+
+不需要公网地址：走官方 `lark-cli` 的长连接，卡片点击从长连接回来。
+
+### 前置
+
+- `lark-cli >= 1.0.99`（**1.0.74 不支持 `--content -`，卡片会发不出去**）
+- 应用已开启机器人能力，并订阅 `card.action.trigger`（长连接）
+- bot 身份 ready；user 身份可以没有（发卡只用 bot），但用户 open_id 要填
+
+升级与检查：
+
+```bash
+lark-cli update
+lark-cli auth status     # bot ready；user 的 openId 就是卡片要发给谁
+```
+
+### 配置
+
+```bash
+# 1. 生成通道密钥（密钥只显示一次）
+AGENT_AUTOLOOP_HOME="$HOME/.agent-autoloop-dev" \
+  node bin/agent-autoloop.ts key new channel feishu
+```
+
+`~/.agent-autoloop-dev/config.json`：
+
+```json
+"channels": {
+  "feishu": { "key": "<通道密钥>", "user": "ou_你的open_id" }
+}
+```
+
+`~/.agent-autoloop-dev/rules.json`：
+
+```json
+"channels": {
+  "feishu": { "name": "飞书", "answerers": ["ou_你的open_id"] }
+}
+```
+
+然后重启 `pnpm run dev`，`agent-autoloop doctor` 应显示 `飞书在线`。
+
+### 注意
+
+- **同一个飞书应用的卡片点击只能有一个监听**，只在一台电脑/一个实例上跑。
+- 卡片默认发到所有通道；某条规则只发飞书：`"channels": ["feishu"]`。
+- 未设 `answerers` 时通道里谁都能回答；`doctor` 会提醒。
+
 ## 上游同步
 
 ```bash

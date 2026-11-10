@@ -94,6 +94,7 @@ footer{border-top:1px solid var(--line);margin-top:70px;padding-top:16px;font:10
   <a href="#rules">规则怎么写</a>
   <a href="#receipt">回执怎么写</a>
   <a href="#cards">卡片怎么答</a>
+  <a href="#feishu">接飞书</a>
   <a href="#plugins">插件四方向</a>
   <a href="#fail">失败与重试</a>
   <a href="#cli">CLI 速查</a>
@@ -271,6 +272,26 @@ agent-autoloop answer 3 --text "都不对，走第三种"
 agent-autoloop resolve 3 "已线下处理"   # 这张卡不用决定了</code></pre>
 <p>也可以走飞书/桌面通道点按钮。回答会变成一条新事件，叫醒提问的事项。</p>
 <div class="note"><b>别忽略：</b>卡片是异步的。你不答，它不占进程、不花钱，但事情就停在那儿——<code>status</code> 里会一直写着「等你」。</div>
+</section>
+
+<section id="feishu">
+<h2><span class="n">09</span>接飞书</h2>
+<p>不需要公网地址：走官方 <code>lark-cli</code> 的长连接，卡片点击从长连接回来。前置：</p>
+<ul>
+  <li><code>lark-cli >= 1.0.99</code>（旧版不支持 <code>--content -</code>，卡片发不出去——我们踩过）</li>
+  <li>飞书应用开机器人能力，并订阅 <code>card.action.trigger</code> 长连接</li>
+  <li>bot 身份 ready；user 身份可缺，但要知道你的 open_id（<code>lark-cli auth status</code>）</li>
+</ul>
+<pre><button class="copy">复制</button><code>lark-cli update
+lark-cli auth status
+agent-autoloop key new channel feishu</code></pre>
+<pre><button class="copy">复制</button><code>// config.json
+"channels": { "feishu": { "key": "&lt;通道密钥&gt;", "user": "ou_你的open_id" } }
+
+// rules.json
+"channels": { "feishu": { "name": "飞书", "answerers": ["ou_你的open_id"] } }</code></pre>
+<p>重启后 <code>agent-autoloop doctor</code> 显示「飞书在线」。卡片默认发所有通道；只发飞书就在规则里写 <code>"channels": ["feishu"]</code>。</p>
+<div class="note warn"><b>同一个飞书应用只能有一个卡片监听</b>（长连接独占）。生产实例和 dev 实例不要同时接同一个应用。</div>
 </section>
 
 <section id="plugins">
